@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useEmulatorStore } from '@/lib/stores/emulator-store';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import type { GameMeta } from '@/types';
 
-// Lazy import the engine to avoid SSR issues
+// Lazy-load the engine to avoid SSR issues
 let engineModule: typeof import('@/core/engine') | null = null;
 
 async function getEngine() {
@@ -22,15 +22,13 @@ export function useEmulator() {
   const fps = useEmulatorStore((s) => s.fps);
   const isRewinding = useEmulatorStore((s) => s.isRewinding);
   const errorMessage = useEmulatorStore((s) => s.errorMessage);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const loadGame = useCallback(
     async (canvas: HTMLCanvasElement, game: GameMeta, romData: ArrayBuffer) => {
-      canvasRef.current = canvas;
       const engine = await getEngine();
       await engine.init(canvas, game, romData);
 
-      // Unlock audio on iOS after the first user interaction that triggered loadGame
+      // Unlock audio on iOS after the user interaction that triggered loadGame
       if (engine.audio) {
         await engine.audio.unlock();
         const { settings } = useSettingsStore.getState();
@@ -56,23 +54,19 @@ export function useEmulator() {
   }, []);
 
   const setSpeed = useCallback(async (multiplier: 1 | 2 | 4) => {
-    const engine = await getEngine();
-    engine.setSpeed(multiplier);
+    useEmulatorStore.getState().setSpeed(multiplier);
   }, []);
 
   const saveState = useCallback(
     async (slot: number) => {
+      if (!currentGame) return null;
       const engine = await getEngine();
-      const state = await engine.saveState();
-      if (state && currentGame) {
+      const result = await engine.saveState();
+      if (result) {
         const { SaveManager } = await import('@/core/save-manager');
-        const thumbnail = canvasRef.current
-          ? await (
-              await import('@/core/screenshot-capture')
-            ).ScreenshotCapture.captureThumbnail(canvasRef.current)
-          : null;
+        const thumbnailBlob = result.thumbnail ?? null;
+        const stateBuffer = await result.state.arrayBuffer();
 
-        // Derive core name from system
         const coreNameMap: Record<string, string> = {
           nes: 'nestopia',
           gba: 'mgba',
@@ -84,13 +78,13 @@ export function useEmulator() {
         await SaveManager.save(
           currentGame.id,
           slot,
-          state,
-          thumbnail,
+          stateBuffer,
+          thumbnailBlob,
           coreName,
           currentGame.system,
         );
       }
-      return state;
+      return result;
     },
     [currentGame],
   );
@@ -102,7 +96,8 @@ export function useEmulator() {
       const save = await SaveManager.load(currentGame.id, slot);
       if (save) {
         const engine = await getEngine();
-        await engine.loadState(save.stateData);
+        const blob = new Blob([save.stateData]);
+        await engine.loadState(blob);
       }
     },
     [currentGame],
@@ -113,7 +108,7 @@ export function useEmulator() {
     return engine.captureScreenshot();
   }, []);
 
-  // Cleanup on unmount
+  // Destroy the engine when the hook unmounts (page navigation away from the player)
   useEffect(() => {
     return () => {
       getEngine().then((engine) => engine.destroy());
