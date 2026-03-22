@@ -34,14 +34,16 @@ export function LoginForm() {
   return (
     <form action={formAction} className="space-y-6">
       <div>
-        <label htmlFor="email" className="block font-pixel text-h4 text-text-secondary mb-2">
+        <label htmlFor="username" className="block font-pixel text-h4 text-text-secondary mb-2">
           USERNAME
         </label>
         <input
-          id="email"
-          name="email"
-          type="email"
-          defaultValue="player1@arcadium.local"
+          id="username"
+          name="username"
+          type="text"
+          autoComplete="username"
+          autoCapitalize="none"
+          placeholder="Enter username"
           required
           className="w-full bg-surface-2 text-text-primary font-body border border-surface-3 rounded-md px-4 py-3 placeholder:text-text-tertiary focus:border-neon-cyan focus:shadow-glow-sm-cyan focus:outline-none transition-all duration-150"
         />
@@ -55,7 +57,8 @@ export function LoginForm() {
           id="password"
           name="password"
           type="password"
-          defaultValue="arcadium2026!"
+          autoComplete="current-password"
+          placeholder="Enter password"
           required
           className="w-full bg-surface-2 text-text-primary font-body border border-surface-3 rounded-md px-4 py-3 placeholder:text-text-tertiary focus:border-neon-cyan focus:shadow-glow-sm-cyan focus:outline-none transition-all duration-150"
         />

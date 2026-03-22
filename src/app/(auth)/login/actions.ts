@@ -7,12 +7,15 @@ export async function loginAction(
   prevState: { error: string | null },
   formData: FormData
 ): Promise<{ error: string | null }> {
-  const email = formData.get('email') as string;
+  const username = formData.get('username') as string;
   const password = formData.get('password') as string;
 
-  if (!email || !password) {
+  if (!username || !password) {
     return { error: 'Username and password are required' };
   }
+
+  // Convert username to email format for Supabase Auth
+  const email = username.includes('@') ? username : `${username}@arcadium.app`;
 
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword({
@@ -21,7 +24,7 @@ export async function loginAction(
   });
 
   if (error) {
-    return { error: 'Invalid credentials. Try player1 / arcadium2026!' };
+    return { error: 'Invalid credentials' };
   }
 
   redirect('/');

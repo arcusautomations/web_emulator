@@ -25,9 +25,9 @@ export default function LoginPage() {
         <LoginForm />
       </div>
 
-      {/* Hint */}
+      {/* Tagline */}
       <p className="font-mono text-caption text-text-tertiary mt-6 relative z-10">
-        player1@arcadium.local / arcadium2026!
+        PLAY ANYWHERE. SAVE EVERYWHERE.
       </p>
 
       <CRTOverlay mode="full" intensity={0.06} />
