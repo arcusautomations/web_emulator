@@ -96,7 +96,7 @@ export function GameHUD({ gameTitle, system, onQuit }: Props) {
           <div className="flex items-center gap-3">
             <button
               onClick={onQuit}
-              className="p-1.5 text-text-secondary hover:text-text-primary transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
               aria-label="Return to library"
             >
               <ArrowLeft size={20} />
@@ -111,42 +111,42 @@ export function GameHUD({ gameTitle, system, onQuit }: Props) {
           <div className="flex items-center gap-1">
             <button
               onClick={() => (status === 'running' ? pause() : resume())}
-              className="p-2 text-text-secondary hover:text-neon-cyan transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-neon-cyan transition-colors"
               aria-label={status === 'running' ? 'Pause' : 'Resume'}
             >
               {status === 'running' ? <Pause size={18} /> : <Play size={18} />}
             </button>
             <button
               onClick={handleSave}
-              className="p-2 text-text-secondary hover:text-neon-cyan transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-neon-cyan transition-colors"
               aria-label="Quick save"
             >
               <Save size={18} />
             </button>
             <button
               onClick={handleScreenshot}
-              className="p-2 text-text-secondary hover:text-neon-cyan transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-neon-cyan transition-colors"
               aria-label="Screenshot"
             >
               <Camera size={18} />
             </button>
             <button
               onClick={() => updateAudio({ isMuted: !isMuted })}
-              className="p-2 text-text-secondary hover:text-neon-cyan transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-neon-cyan transition-colors"
               aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
             </button>
             <button
               onClick={handleFullscreen}
-              className="p-2 text-text-secondary hover:text-neon-cyan transition-colors hidden sm:block"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-neon-cyan transition-colors hidden sm:flex"
               aria-label="Fullscreen"
             >
               <Maximize size={18} />
             </button>
             <button
               onClick={() => setActiveModal('quickMenu')}
-              className="p-2 text-text-secondary hover:text-neon-cyan transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-neon-cyan transition-colors"
               aria-label="Menu"
             >
               <Settings size={18} />

@@ -9,15 +9,32 @@
  * Height: 64px desktop (h-16), 56px mobile (h-14).
  * Left:   hamburger (toggles sidebar via useUIStore), ARCADIUM logo.
  * Center: reserved for Phase 3 search.
- * Right:  player avatar circle with initials "P1".
+ * Right:  player avatar with dropdown menu (display name, Settings, Sign Out).
  */
 
-import { Menu, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { Menu, X, Settings, LogOut } from 'lucide-react';
 import { useUIStore } from '@/lib/stores/ui-store';
+import { signOut } from '@/app/(app)/actions';
 
 export function Navbar() {
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
 
   return (
     <header
@@ -52,17 +69,55 @@ export function Navbar() {
       {/* Center: reserved for Phase 3 search */}
       <div className="hidden lg:flex flex-1 justify-center px-4" aria-hidden="true" />
 
-      {/* Right: user avatar */}
-      <div className="flex items-center ml-auto shrink-0">
+      {/* Right: user avatar + dropdown */}
+      <div className="flex items-center ml-auto shrink-0 relative" ref={menuRef}>
         <button
           type="button"
-          aria-label="Player 1 account menu"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Account menu"
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
           className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-surface-2 border border-surface-3 hover:border-neon-cyan hover:shadow-glow-sm-cyan transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-base"
         >
           <span className="font-pixel text-micro text-text-primary select-none leading-none">
             P1
           </span>
         </button>
+
+        {menuOpen && (
+          <div
+            role="menu"
+            className="absolute top-full right-0 mt-2 w-48 bg-surface-2 border border-surface-3 rounded-lg shadow-elevation-lg overflow-hidden z-50"
+          >
+            {/* Display name header */}
+            <div className="px-4 py-3 border-b border-surface-3">
+              <p className="font-pixel text-micro text-text-primary truncate">PLAYER</p>
+            </div>
+
+            {/* Settings link */}
+            <Link
+              href="/settings"
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-text-secondary hover:text-text-primary hover:bg-surface-1 transition-colors duration-150"
+            >
+              <Settings size={16} aria-hidden="true" />
+              <span className="font-pixel text-micro">SETTINGS</span>
+            </Link>
+
+            {/* Sign Out */}
+            <form action={signOut}>
+              <button
+                type="submit"
+                role="menuitem"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-error hover:text-error-light hover:bg-surface-1 transition-colors duration-150"
+              >
+                <LogOut size={16} aria-hidden="true" />
+                <span className="font-pixel text-micro">SIGN OUT</span>
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </header>
   );

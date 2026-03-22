@@ -14,6 +14,9 @@ import { QuickMenu } from './QuickMenu';
 import { LoadingOverlay } from './LoadingOverlay';
 import { PauseOverlay } from './PauseOverlay';
 import { EmulatorErrorBoundary } from './EmulatorErrorBoundary';
+import { RewindOverlay } from './RewindOverlay';
+import { SpeedIndicator } from './SpeedIndicator';
+import { CheatPanel } from './CheatPanel';
 import { CRTOverlay } from '@/components/effects/CRTOverlay';
 import type { GameMeta, SystemType } from '@/types';
 
@@ -122,6 +125,12 @@ export function GamePlayerClient({ game }: Props) {
         {/* CRT Overlay (on canvas only) */}
         <CRTOverlay mode="canvas" />
 
+        {/* Rewind Overlay */}
+        <RewindOverlay />
+
+        {/* Speed Indicator */}
+        <SpeedIndicator />
+
         {/* Loading Overlay */}
         {isLoading && <LoadingOverlay progress={loadProgress} title={game.title} />}
 
@@ -142,6 +151,9 @@ export function GamePlayerClient({ game }: Props) {
 
         {/* Quick Menu */}
         <QuickMenu gameId={game.id} system={game.system} onQuit={handleQuit} />
+
+        {/* Cheat Panel */}
+        <CheatPanel />
 
         {/* Keyboard shortcuts (active only when game is loaded) */}
         {!isLoading && <KeyboardShortcutsActivator />}

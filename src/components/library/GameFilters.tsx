@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTransition, useCallback } from 'react';
+import { useTransition, useCallback, useRef } from 'react';
 import { Search, LayoutGrid, List } from 'lucide-react';
 
 interface GameFiltersProps {
@@ -23,6 +23,7 @@ export function GameFilters({ currentSystem = 'all', currentSort = 'title', curr
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const updateParam = useCallback((key: string, value: string) => {
     startTransition(() => {
@@ -66,8 +67,8 @@ export function GameFilters({ currentSystem = 'all', currentSort = 'title', curr
           defaultValue={currentQuery}
           onChange={(e) => {
             const value = e.target.value;
-            const timeout = setTimeout(() => updateParam('q', value), 300);
-            return () => clearTimeout(timeout);
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            debounceRef.current = setTimeout(() => updateParam('q', value), 300);
           }}
           className="w-full bg-surface-1 text-text-primary font-body text-body-sm border border-surface-3 rounded-md pl-9 pr-4 py-2 placeholder:text-text-tertiary focus:border-neon-cyan focus:shadow-glow-sm-cyan focus:outline-none transition-all"
         />

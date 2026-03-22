@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { GameGrid } from '@/components/library/GameGrid';
 import { GameFilters } from '@/components/library/GameFilters';
 import { ContinuePlaying } from '@/components/library/ContinuePlaying';
+import { ROMUploader } from '@/components/library/ROMUploader';
+import { AddGameSection } from '@/components/library/AddGameSection';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 interface Props {
@@ -68,6 +70,21 @@ export default async function LibraryPage({ searchParams }: Props) {
   const params = await searchParams;
   const { games, favoriteIds, recentGames } = await fetchLibraryData(params);
 
+  // Empty state — show ROMUploader as hero
+  if (games.length === 0) {
+    return (
+      <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+        <h1 className="font-pixel text-h1 text-neon-cyan text-glow-cyan mb-8">LIBRARY</h1>
+        <div className="max-w-lg mx-auto">
+          <p className="font-pixel text-h4 text-text-secondary text-center mb-6">
+            NO GAMES YET — ADD YOUR FIRST ROM
+          </p>
+          <ROMUploader />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 lg:p-8 pb-20 lg:pb-8">
       {/* Continue Playing */}
@@ -85,6 +102,11 @@ export default async function LibraryPage({ searchParams }: Props) {
         currentQuery={params.q}
         currentView={params.view}
       />
+
+      {/* Collapsible ADD GAME section */}
+      <div className="mt-4">
+        <AddGameSection />
+      </div>
 
       {/* Game Grid */}
       <section className="mt-6">

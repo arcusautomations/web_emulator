@@ -16,7 +16,17 @@ const TABS = [
   { id: 'account', label: 'ACCOUNT' },
 ];
 
-export function SettingsClient() {
+interface SettingsClientProps {
+  user?: {
+    email?: string;
+    user_metadata?: {
+      username?: string;
+      display_name?: string;
+    };
+  };
+}
+
+export function SettingsClient({ user }: SettingsClientProps = {}) {
   const [activeTab, setActiveTab] = useState('display');
   const settings = useSettingsStore((s) => s.settings);
   const updateVideo = useSettingsStore((s) => s.updateVideo);
@@ -115,8 +125,15 @@ export function SettingsClient() {
         {activeTab === 'account' && (
           <div className="space-y-6">
             <div className="bg-surface-1 border border-surface-3 rounded-lg p-5">
-              <p className="font-pixel text-h4 text-text-primary mb-1">PLAYER ONE</p>
-              <p className="text-text-secondary text-body-sm">player1@arcadium.local</p>
+              <p className="font-pixel text-h4 text-text-primary mb-1">
+                {user?.user_metadata?.display_name ?? user?.user_metadata?.username ?? 'PLAYER'}
+              </p>
+              {user?.user_metadata?.username && user.user_metadata.username !== user.user_metadata.display_name && (
+                <p className="text-text-tertiary text-caption mb-1">@{user.user_metadata.username}</p>
+              )}
+              {user?.email && (
+                <p className="text-text-secondary text-body-sm">{user.email}</p>
+              )}
             </div>
             <form action={signOut}>
               <button type="submit" className="font-pixel text-h4 text-error hover:text-error-light transition-colors">

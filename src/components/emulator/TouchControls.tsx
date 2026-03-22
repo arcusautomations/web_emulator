@@ -132,14 +132,14 @@ export function TouchControls({ system }: Props) {
       {/* Shoulder Buttons */}
       <div
         {...touchProps('l')}
-        className="absolute top-4 left-4 pointer-events-auto bg-surface-2/60 border border-surface-3/40 rounded-lg flex items-center justify-center font-pixel text-micro text-text-secondary active:bg-neon-cyan/30 touch-none"
+        className="absolute top-16 left-4 pointer-events-auto bg-surface-2/60 border border-surface-3/40 rounded-lg flex items-center justify-center font-pixel text-micro text-text-secondary active:bg-neon-cyan/30 touch-none"
         style={{ width: shoulderW, height: shoulderH }}
       >
         L
       </div>
       <div
         {...touchProps('r')}
-        className="absolute top-4 right-4 pointer-events-auto bg-surface-2/60 border border-surface-3/40 rounded-lg flex items-center justify-center font-pixel text-micro text-text-secondary active:bg-neon-cyan/30 touch-none"
+        className="absolute top-16 right-4 pointer-events-auto bg-surface-2/60 border border-surface-3/40 rounded-lg flex items-center justify-center font-pixel text-micro text-text-secondary active:bg-neon-cyan/30 touch-none"
         style={{ width: shoulderW, height: shoulderH }}
       >
         R

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Upload, AlertCircle, CheckCircle, FileUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { detectSystemFromExtension, validateROM, hashROM } from '@/lib/utils/rom-utils';
@@ -8,6 +9,7 @@ import { set } from 'idb-keyval';
 import { createClient } from '@/lib/supabase/client';
 
 export function ROMUploader() {
+  const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
   const [status, setStatus] = useState<'idle' | 'validating' | 'uploading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -78,13 +80,14 @@ export function ROMUploader() {
 
     setProgress(100);
     setStatus('success');
+    router.refresh();
 
     // Reset after 2s
     setTimeout(() => {
       setStatus('idle');
       setProgress(0);
     }, 2000);
-  }, []);
+  }, [router]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

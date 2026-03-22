@@ -21,10 +21,10 @@ interface TabItem {
 }
 
 const tabs: TabItem[] = [
-  { href: '/library', label: 'Library', icon: LayoutGrid },
+  { href: '/', label: 'Library', icon: LayoutGrid },
   { href: '/favorites', label: 'Favorites', icon: Heart },
   { href: '/saves', label: 'Saves', icon: Save },
-  { href: '/achievements', label: 'Trophies', icon: Trophy },
+  { href: '/achievements', label: 'Achievements', icon: Trophy },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -32,6 +32,7 @@ export function BottomBar() {
   const pathname = usePathname();
 
   function isActive(href: string): boolean {
+    if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 

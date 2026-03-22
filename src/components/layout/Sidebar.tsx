@@ -31,7 +31,7 @@ interface NavItem {
 }
 
 const primaryItems: NavItem[] = [
-  { href: '/library', label: 'Library', icon: LayoutGrid },
+  { href: '/', label: 'Library', icon: LayoutGrid },
   { href: '/favorites', label: 'Favorites', icon: Heart },
   { href: '/saves', label: 'Saves', icon: Save },
   { href: '/achievements', label: 'Achievements', icon: Trophy },
@@ -47,6 +47,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   function isActive(href: string): boolean {
+    if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 

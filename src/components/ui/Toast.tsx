@@ -150,7 +150,7 @@ function ToastContainer() {
   return (
     <div
       aria-label="Notifications"
-      className="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"
+      className="fixed top-[max(16px,env(safe-area-inset-top))] right-[max(16px,env(safe-area-inset-right))] z-50 flex flex-col gap-3 pointer-events-none"
     >
       <ul
         className="flex flex-col gap-3 list-none m-0 p-0 pointer-events-auto"
