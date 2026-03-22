@@ -1,26 +1,280 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ── Background / Surface Colors ── */
+  --color-void: #0a0118;
+  --color-base: #0d0221;
+  --color-surface-1: #140533;
+  --color-surface-2: #1a0a40;
+  --color-surface-3: #22104d;
+
+  /* ── Magenta ── */
+  --color-neon-magenta: #ff00ff;
+  --color-magenta-light: #ff66ff;
+  --color-magenta-muted: #cc52cc;
+  --color-magenta-dim: #661a66;
+
+  /* ── Cyan ── */
+  --color-neon-cyan: #00ffc8;
+  --color-cyan-light: #66ffd9;
+  --color-cyan-muted: #00b88e;
+  --color-cyan-dim: #004d3b;
+
+  /* ── Electric Blue ── */
+  --color-electric-blue: #0096ff;
+  --color-blue-light: #4db8ff;
+  --color-blue-muted: #006bb3;
+  --color-blue-dim: #002d4d;
+
+  /* ── Text ── */
+  --color-text-primary: #f0e6ff;
+  --color-text-secondary: #b8a5d4;
+  --color-text-tertiary: #7a6994;
+  --color-text-inverse: #0d0221;
+
+  /* ── Status ── */
+  --color-success: #00ff88;
+  --color-warning: #ffaa00;
+  --color-error: #ff3366;
+  --color-error-light: #ff6688;
+
+  /* ── Fonts ── */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-body: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Font Sizes with line-height ── */
+  --text-display: 2.5rem;
+  --text-display--line-height: 1.1;
+  --text-h1: 2rem;
+  --text-h1--line-height: 1.2;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 1.25;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.3;
+  --text-h4: 0.875rem;
+  --text-h4--line-height: 1.35;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.5;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.5;
+  --text-micro: 0.625rem;
+  --text-micro--line-height: 1.4;
+
+  /* ── Shadows & Glows ── */
+  --shadow-glow-sm-magenta: 0 0 4px #ff00ff66, 0 0 8px #ff00ff33;
+  --shadow-glow-md-magenta: 0 0 8px #ff00ff88, 0 0 20px #ff00ff44, 0 0 40px #ff00ff22;
+  --shadow-glow-lg-magenta: 0 0 12px #ff00ffaa, 0 0 30px #ff00ff66, 0 0 60px #ff00ff33, 0 0 100px #ff00ff11;
+  --shadow-glow-sm-cyan: 0 0 4px #00ffc866, 0 0 8px #00ffc833;
+  --shadow-glow-md-cyan: 0 0 8px #00ffc888, 0 0 20px #00ffc844, 0 0 40px #00ffc822;
+  --shadow-glow-lg-cyan: 0 0 12px #00ffc8aa, 0 0 30px #00ffc866, 0 0 60px #00ffc833, 0 0 100px #00ffc811;
+  --shadow-glow-sm-blue: 0 0 4px #0096ff66, 0 0 8px #0096ff33;
+  --shadow-glow-md-blue: 0 0 8px #0096ff88, 0 0 20px #0096ff44, 0 0 40px #0096ff22;
+  --shadow-glow-lg-blue: 0 0 12px #0096ffaa, 0 0 30px #0096ff66, 0 0 60px #0096ff33;
+  --shadow-glow-success: 0 0 8px #00ff8888, 0 0 20px #00ff8844;
+  --shadow-glow-error: 0 0 8px #ff336688, 0 0 20px #ff336644;
+  --shadow-elevation-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-elevation-md: 0 4px 8px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-elevation-lg: 0 8px 24px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-elevation-xl: 0 16px 48px rgba(0, 0, 0, 0.7), 0 4px 8px rgba(0, 0, 0, 0.4);
+
+  /* ── Animations ── */
+  --animate-neon-pulse: neon-pulse 2s ease-in-out infinite;
+  --animate-crt-flicker: crt-flicker 0.1s linear infinite;
+  --animate-scanline-scroll: scanline-scroll 8s linear infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Keyframes ── */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4px #00ffc866, 0 0 8px #00ffc833;
+  }
+  50% {
+    box-shadow: 0 0 8px #00ffc888, 0 0 20px #00ffc844, 0 0 40px #00ffc822;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes crt-flicker {
+  0% {
+    opacity: 0.98;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes scanline-scroll {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+/* ── OLED Mode Overrides ── */
+.oled-mode {
+  --color-void: #000000;
+  --color-base: #000000;
+  --color-surface-1: #0a0a0a;
+  --color-surface-2: #0d0221;
+  --color-surface-3: #140533;
+}
+
+/* ── Utility Classes ── */
+@layer utilities {
+  /* Neon text glow effects */
+  .text-glow-magenta {
+    text-shadow:
+      0 0 4px #ff00ff,
+      0 0 10px #ff00ffaa,
+      0 0 20px #ff00ff66,
+      0 0 40px #ff00ff33;
+  }
+
+  .text-glow-cyan {
+    text-shadow:
+      0 0 4px #00ffc8,
+      0 0 10px #00ffc8aa,
+      0 0 20px #00ffc866,
+      0 0 40px #00ffc833;
+  }
+
+  .text-glow-blue {
+    text-shadow:
+      0 0 4px #0096ff,
+      0 0 10px #0096ffaa,
+      0 0 20px #0096ff66,
+      0 0 40px #0096ff33;
+  }
+
+  /* CRT scanlines overlay */
+  .scanlines {
+    position: relative;
+  }
+  .scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 4px
+    );
+    z-index: 1;
+  }
+
+  /* CRT vignette — darkens edges */
+  .crt-vignette {
+    position: relative;
+  }
+  .crt-vignette::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 60%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    z-index: 2;
+  }
+
+  /* Glassmorphism card effect */
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(20, 5, 51, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Gradient neon underline */
+  .neon-underline {
+    position: relative;
+    text-decoration: none;
+  }
+  .neon-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ff00ff, #00ffc8, #0096ff);
+    box-shadow: 0 0 6px #ff00ff88, 0 0 12px #00ffc844;
+  }
+}
+
+/* ── Base Styles ── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background: var(--color-void);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface-1);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-cyan-muted);
+    border-radius: 3px;
+    box-shadow: 0 0 4px #00ffc866;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neon-cyan);
+    box-shadow: 0 0 8px #00ffc8aa;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-cyan-muted) var(--color-surface-1);
+  }
+
+  /* Text selection */
+  ::selection {
+    background: #ff00ff40;
+    color: #f0e6ff;
+  }
+
+  ::-moz-selection {
+    background: #ff00ff40;
+    color: #f0e6ff;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
