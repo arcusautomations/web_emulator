@@ -45,7 +45,7 @@ export function GameFilters({ currentSystem = 'all', currentSort = 'title', curr
           <button
             key={sys.value}
             onClick={() => updateParam('system', sys.value)}
-            className={`font-pixel text-micro px-3 py-1.5 rounded-md border transition-all whitespace-nowrap ${
+            className={`font-pixel text-micro px-3 py-2 rounded-md border transition-all whitespace-nowrap ${
               currentSystem === sys.value || (sys.value === 'all' && !currentSystem)
                 ? 'bg-neon-cyan/10 border-neon-cyan text-neon-cyan shadow-glow-sm-cyan'
                 : 'bg-surface-1 border-surface-3 text-text-secondary hover:border-surface-3 hover:text-text-primary'

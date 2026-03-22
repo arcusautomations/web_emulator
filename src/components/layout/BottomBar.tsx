@@ -42,7 +42,7 @@ export function BottomBar() {
       className={[
         'fixed bottom-0 left-0 right-0 z-40',
         'lg:hidden',
-        'h-16 bg-base/90 backdrop-blur-md border-t border-surface-3',
+        'h-14 bg-base/90 backdrop-blur-md border-t border-surface-3',
         /* Safe-area bottom padding — overrides h-16 internal padding */
         'pb-[max(8px,env(safe-area-inset-bottom))]',
         'flex items-stretch',
@@ -59,18 +59,18 @@ export function BottomBar() {
             aria-current={active ? 'page' : undefined}
             aria-label={tab.label}
             className={[
-              'flex-1 flex flex-col items-center justify-center gap-1',
+              'flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5',
               'transition-colors duration-150',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neon-cyan',
               active ? 'text-neon-cyan' : 'text-text-tertiary hover:text-text-secondary',
             ].join(' ')}
           >
             <Icon
-              size={20}
+              size={18}
               aria-hidden={true}
               className={active ? 'drop-shadow-[0_0_6px_#00ffc8aa]' : ''}
             />
-            <span className="font-pixel text-micro leading-none">{tab.label}</span>
+            <span className="font-pixel text-[10px] leading-none">{tab.label}</span>
           </Link>
         );
       })}

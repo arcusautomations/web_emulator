@@ -6,7 +6,7 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+    <div className="p-4 lg:p-8 pb-16 lg:pb-8">
       <h1 className="font-pixel text-h1 text-neon-cyan text-glow-cyan mb-6">SETTINGS</h1>
       <SettingsClient user={user ?? undefined} />
     </div>

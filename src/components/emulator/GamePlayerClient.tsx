@@ -70,15 +70,35 @@ export function GamePlayerClient({ game }: Props) {
 
         let romData: ArrayBuffer;
 
-        if (game.source === 'bundled' && game.rom_storage_path) {
+        if (game.source === 'bundled') {
+          // Bundled games: fetch from server (Supabase Storage or public dir)
           setLoadProgress(30);
-          const response = await fetch(`/${game.rom_storage_path}`);
-          if (!response.ok) throw new Error('Failed to fetch ROM');
+
+          if (!game.rom_storage_path) {
+            throw new Error('This game is not yet available for play. ROM file pending upload.');
+          }
+
+          // Handle both full URLs and relative paths
+          const romUrl = game.rom_storage_path.startsWith('http')
+            ? game.rom_storage_path
+            : `/${game.rom_storage_path}`;
+
+          const response = await fetch(romUrl);
+          if (!response.ok) {
+            throw new Error(`Failed to download ROM (${response.status}). Try again later.`);
+          }
           romData = await response.arrayBuffer();
+
+          if (romData.byteLength < 100) {
+            throw new Error('Downloaded ROM file is invalid (too small).');
+          }
         } else {
+          // Uploaded games: load from browser IndexedDB
           setLoadProgress(30);
           const stored = await get<ArrayBuffer>(`arcadium:rom:${game.file_hash}`);
-          if (!stored) throw new Error('ROM not found in local storage. Please re-upload.');
+          if (!stored) {
+            throw new Error('ROM not found on this device. Please upload the ROM file again.');
+          }
           romData = stored;
         }
 

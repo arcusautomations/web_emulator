@@ -14,7 +14,7 @@ export default async function SavesPage() {
     .order('updated_at', { ascending: false });
 
   return (
-    <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+    <div className="p-4 lg:p-8 pb-16 lg:pb-8">
       <h1 className="font-pixel text-h1 text-neon-cyan text-glow-cyan mb-6">SAVE STATES</h1>
       <SaveSlotGrid saves={saves ?? []} />
     </div>

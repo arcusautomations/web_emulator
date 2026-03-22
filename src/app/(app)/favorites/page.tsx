@@ -17,7 +17,7 @@ export default async function FavoritesPage() {
   const favoriteIds = new Set(games.map((g: any) => g.id));
 
   return (
-    <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+    <div className="p-4 lg:p-8 pb-16 lg:pb-8">
       <h1 className="font-pixel text-h1 text-neon-magenta text-glow-magenta mb-6">FAVORITES</h1>
       {games.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">

@@ -15,7 +15,7 @@ export default async function ScreenshotsPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+    <div className="p-4 lg:p-8 pb-16 lg:pb-8">
       <h1 className="font-pixel text-h1 text-electric-blue mb-6" style={{ textShadow: '0 0 4px #0096ff88, 0 0 12px #0096ff44' }}>SCREENSHOTS</h1>
       {(!screenshots || screenshots.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">

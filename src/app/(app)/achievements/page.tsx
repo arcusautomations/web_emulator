@@ -18,7 +18,7 @@ export default async function AchievementsPage() {
   const unlocked = achievements?.filter(a => a.is_unlocked).length ?? 0;
 
   return (
-    <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+    <div className="p-4 lg:p-8 pb-16 lg:pb-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-pixel text-h1 text-neon-magenta text-glow-magenta">ACHIEVEMENTS</h1>
         {total > 0 && (

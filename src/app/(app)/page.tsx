@@ -73,7 +73,7 @@ export default async function LibraryPage({ searchParams }: Props) {
   // Empty state — show ROMUploader as hero
   if (games.length === 0) {
     return (
-      <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+      <div className="p-4 lg:p-8 pb-16 lg:pb-8">
         <h1 className="font-pixel text-h1 text-neon-cyan text-glow-cyan mb-8">LIBRARY</h1>
         <div className="max-w-lg mx-auto">
           <p className="font-pixel text-h4 text-text-secondary text-center mb-6">
@@ -86,11 +86,11 @@ export default async function LibraryPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+    <div className="p-4 lg:p-8 pb-16 lg:pb-8">
       {/* Continue Playing */}
       {recentGames.length > 0 && (
         <section className="mb-8">
-          <h2 className="font-pixel text-h3 text-neon-cyan mb-4">CONTINUE PLAYING</h2>
+          <h2 className="font-pixel text-h4 sm:text-h3 text-neon-cyan mb-4">CONTINUE PLAYING</h2>
           <ContinuePlaying games={recentGames} />
         </section>
       )}
@@ -111,7 +111,7 @@ export default async function LibraryPage({ searchParams }: Props) {
       {/* Game Grid */}
       <section className="mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-pixel text-h3 text-text-primary">
+          <h2 className="font-pixel text-h4 sm:text-h3 text-text-primary">
             ALL GAMES <span className="text-text-tertiary">({games.length})</span>
           </h2>
         </div>
