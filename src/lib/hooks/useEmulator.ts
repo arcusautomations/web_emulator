@@ -24,16 +24,9 @@ export function useEmulator() {
   const errorMessage = useEmulatorStore((s) => s.errorMessage);
 
   const loadGame = useCallback(
-    async (canvas: HTMLCanvasElement, game: GameMeta, romData: ArrayBuffer) => {
+    async (container: HTMLDivElement, game: GameMeta, romData: ArrayBuffer) => {
       const engine = await getEngine();
-      await engine.init(canvas, game, romData);
-
-      // Unlock audio on iOS after the user interaction that triggered loadGame
-      if (engine.audio) {
-        await engine.audio.unlock();
-        const { settings } = useSettingsStore.getState();
-        engine.audio.setVolume(settings.audio.isMuted ? 0 : settings.audio.masterVolume);
-      }
+      await engine.init(container, game, romData);
     },
     [],
   );

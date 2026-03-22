@@ -6,18 +6,13 @@ import { get } from 'idb-keyval';
 import { useEmulator } from '@/lib/hooks/useEmulator';
 import { useEmulatorStore } from '@/lib/stores/emulator-store';
 import { usePlatformDetect } from '@/lib/hooks/usePlatformDetect';
-import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
-import { EmulatorCanvas } from './EmulatorCanvas';
 import { TouchControls } from './TouchControls';
 import { GameHUD } from './GameHUD';
 import { QuickMenu } from './QuickMenu';
 import { LoadingOverlay } from './LoadingOverlay';
 import { PauseOverlay } from './PauseOverlay';
 import { EmulatorErrorBoundary } from './EmulatorErrorBoundary';
-import { RewindOverlay } from './RewindOverlay';
-import { SpeedIndicator } from './SpeedIndicator';
 import { CheatPanel } from './CheatPanel';
-import { CRTOverlay } from '@/components/effects/CRTOverlay';
 import type { GameMeta, SystemType } from '@/types';
 
 interface Props {
@@ -25,24 +20,18 @@ interface Props {
   game: any; // Supabase row
 }
 
-function KeyboardShortcutsActivator() {
-  useKeyboardShortcuts();
-  return null;
-}
-
 export function GamePlayerClient({ game }: Props) {
   const router = useRouter();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { loadGame, resume, status } = useEmulator();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { loadGame, resume } = useEmulator();
   const { isTouchDevice } = usePlatformDetect();
   const [isLoading, setIsLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const initRef = useRef(false); // Prevent double-init in StrictMode
 
-  // Derive the emulator status directly from the store (stable selector)
   const emulatorStatus = useEmulatorStore((s) => s.status);
 
-  // Convert Supabase row to GameMeta
   const gameMeta: GameMeta = {
     id: game.id,
     userId: game.user_id,
@@ -62,58 +51,85 @@ export function GamePlayerClient({ game }: Props) {
   };
 
   useEffect(() => {
+    if (initRef.current) return;
+    let cancelled = false;
+
     async function init() {
-      if (!canvasRef.current) return;
+      // Wait for container to be available (handles React timing)
+      let container = containerRef.current;
+      let retries = 0;
+      while (!container && retries < 100) {
+        await new Promise((r) => setTimeout(r, 20));
+        container = containerRef.current;
+        retries++;
+      }
+
+      if (!container || cancelled) {
+        if (!cancelled) {
+          setLoadError('Failed to initialize display. Please refresh the page.');
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      initRef.current = true;
 
       try {
         setLoadProgress(10);
 
+        // Step 1: Fetch ROM data
         let romData: ArrayBuffer;
 
         if (game.source === 'bundled') {
-          // Bundled games: fetch from server (Supabase Storage or public dir)
-          setLoadProgress(30);
-
           if (!game.rom_storage_path) {
-            throw new Error('This game is not yet available for play. ROM file pending upload.');
+            throw new Error('This game is not yet available. ROM file pending upload.');
           }
 
-          // Handle both full URLs and relative paths
+          setLoadProgress(20);
           const romUrl = game.rom_storage_path.startsWith('http')
             ? game.rom_storage_path
             : `/${game.rom_storage_path}`;
 
           const response = await fetch(romUrl);
           if (!response.ok) {
-            throw new Error(`Failed to download ROM (${response.status}). Try again later.`);
+            throw new Error(`Failed to download ROM (HTTP ${response.status}).`);
           }
           romData = await response.arrayBuffer();
 
           if (romData.byteLength < 100) {
-            throw new Error('Downloaded ROM file is invalid (too small).');
+            throw new Error('Downloaded ROM file is invalid.');
           }
         } else {
-          // Uploaded games: load from browser IndexedDB
-          setLoadProgress(30);
+          setLoadProgress(20);
           const stored = await get<ArrayBuffer>(`arcadium:rom:${game.file_hash}`);
           if (!stored) {
-            throw new Error('ROM not found on this device. Please upload the ROM file again.');
+            throw new Error('ROM not found on this device. Please upload again.');
           }
           romData = stored;
         }
 
-        setLoadProgress(60);
+        if (cancelled) return;
+        setLoadProgress(40);
 
-        await loadGame(canvasRef.current, gameMeta, romData);
+        // Step 2: Initialize emulator (Nostalgist creates its canvas inside our container)
+        await loadGame(container, gameMeta, romData);
+
+        if (cancelled) return;
         setLoadProgress(100);
         setIsLoading(false);
       } catch (error) {
-        setLoadError(error instanceof Error ? error.message : 'Failed to load game');
-        setIsLoading(false);
+        if (!cancelled) {
+          setLoadError(error instanceof Error ? error.message : 'Failed to load game');
+          setIsLoading(false);
+        }
       }
     }
 
     init();
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.id]);
 
@@ -124,7 +140,7 @@ export function GamePlayerClient({ game }: Props) {
   if (loadError) {
     return (
       <div className="min-h-[100dvh] bg-void flex flex-col items-center justify-center p-8">
-        <div className="font-pixel text-h2 text-error mb-4">LOAD FAILED</div>
+        <div className="font-pixel text-h2 sm:text-h1 text-error mb-4">LOAD FAILED</div>
         <p className="text-error-light text-body-sm mb-8 text-center max-w-md">{loadError}</p>
         <button
           onClick={handleQuit}
@@ -138,18 +154,13 @@ export function GamePlayerClient({ game }: Props) {
 
   return (
     <EmulatorErrorBoundary onQuit={handleQuit}>
-      <div className="fixed inset-0 bg-void flex items-center justify-center">
-        {/* Canvas */}
-        <EmulatorCanvas ref={canvasRef} system={game.system} />
-
-        {/* CRT Overlay (on canvas only) */}
-        <CRTOverlay mode="canvas" />
-
-        {/* Rewind Overlay */}
-        <RewindOverlay />
-
-        {/* Speed Indicator */}
-        <SpeedIndicator />
+      <div className="fixed inset-0 bg-black flex items-center justify-center">
+        {/* Emulator container — Nostalgist injects its canvas here */}
+        <div
+          ref={containerRef}
+          className="w-full h-full"
+          style={{ touchAction: 'none' }}
+        />
 
         {/* Loading Overlay */}
         {isLoading && <LoadingOverlay progress={loadProgress} title={game.title} />}
@@ -164,8 +175,8 @@ export function GamePlayerClient({ game }: Props) {
           <GameHUD gameTitle={game.title} system={game.system} onQuit={handleQuit} />
         )}
 
-        {/* Touch Controls */}
-        {isTouchDevice && !isLoading && emulatorStatus === 'running' && (
+        {/* Touch Controls — show whenever game is running on touch device */}
+        {isTouchDevice && !isLoading && (emulatorStatus === 'running' || emulatorStatus === 'paused') && (
           <TouchControls system={game.system} />
         )}
 
@@ -174,9 +185,6 @@ export function GamePlayerClient({ game }: Props) {
 
         {/* Cheat Panel */}
         <CheatPanel />
-
-        {/* Keyboard shortcuts (active only when game is loaded) */}
-        {!isLoading && <KeyboardShortcutsActivator />}
       </div>
     </EmulatorErrorBoundary>
   );

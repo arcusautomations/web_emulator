@@ -2,14 +2,12 @@ import { Nostalgist } from 'nostalgist';
 import { CORE_CONFIGS } from '@/lib/constants';
 import { useEmulatorStore } from '@/lib/stores/emulator-store';
 import type { SystemType, GameMeta } from '@/types';
-import { AudioPipeline } from './audio-pipeline';
 
 // Suppress unused import warning — SystemType used in type position only
 type _SystemType = SystemType;
 
 // Module-scoped singleton — NOT in Zustand (non-serializable)
 let nostalgistInstance: Nostalgist | null = null;
-let audioPipeline: AudioPipeline | null = null;
 
 export class EmulatorEngine {
   private static _instance: EmulatorEngine | null = null;
@@ -21,7 +19,13 @@ export class EmulatorEngine {
     return EmulatorEngine._instance;
   }
 
-  async init(canvas: HTMLCanvasElement, game: GameMeta, romData: ArrayBuffer): Promise<void> {
+  /**
+   * Initialize the emulator.
+   * @param containerEl — a <div> where we create a canvas for Nostalgist
+   * @param game — game metadata
+   * @param romData — the ROM binary as ArrayBuffer
+   */
+  async init(containerEl: HTMLDivElement, game: GameMeta, romData: ArrayBuffer): Promise<void> {
     const store = useEmulatorStore.getState();
     store.setStatus('loading');
     store.setCurrentGame(game);
@@ -30,40 +34,49 @@ export class EmulatorEngine {
       const config = CORE_CONFIGS[game.system];
       store.setCurrentCore(config.core);
 
-      // Initialize audio pipeline
-      audioPipeline = new AudioPipeline();
-
-      // Create ROM file from buffer so Nostalgist can infer the extension
-      const romFile = new File([romData], `game${config.extensions[0]}`, {
+      // Create a proper File object with correct extension for Nostalgist
+      const ext = config.extensions[0] ?? '.bin';
+      const romFile = new File([romData], `game${ext}`, {
         type: 'application/octet-stream',
       });
 
-      // Launch Nostalgist with a 30-second timeout.
-      // Nostalgist handles its own rendering loop, audio output, and keyboard input.
-      // For touch/programmatic input we call pressDown/pressUp on the instance.
+      // Create a canvas element inside the container for Nostalgist
+      containerEl.innerHTML = '';
+      const canvas = document.createElement('canvas');
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.backgroundColor = 'black';
+      canvas.style.imageRendering = 'pixelated';
+      canvas.style.objectFit = 'contain';
+      containerEl.appendChild(canvas);
+
+      // Pass OUR canvas to Nostalgist — it renders into it
       const launchPromise = Nostalgist.launch({
         core: config.core,
         rom: romFile,
         element: canvas,
-        size: { width: config.nativeWidth, height: config.nativeHeight },
+        size: 'auto',
+        retroarchConfig: {
+          video_vsync: true,
+          rewind_enable: false,
+          savestate_thumbnail_enable: true,
+        } as Record<string, unknown>,
       });
 
+      // 30-second timeout
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(
-          () => reject(new Error('Emulator initialization timed out. Please try again.')),
+          () => reject(new Error('Emulator initialization timed out (30s). The WASM core may have failed to download. Please try again.')),
           30000,
         );
       });
 
       nostalgistInstance = await Promise.race([launchPromise, timeoutPromise]);
 
-      // Handle WebGL context loss (critical on iOS Safari)
-      canvas.addEventListener('webglcontextlost', this.handleContextLost);
-      canvas.addEventListener('webglcontextrestored', this.handleContextRestored);
-
       store.setStatus('running');
     } catch (error) {
-      store.setError(error instanceof Error ? error.message : 'Failed to initialize emulator');
+      const msg = error instanceof Error ? error.message : 'Failed to initialize emulator';
+      store.setError(msg);
       throw error;
     }
   }
@@ -88,12 +101,14 @@ export class EmulatorEngine {
   }
 
   pause(): void {
-    nostalgistInstance?.pause();
+    if (!nostalgistInstance) return;
+    nostalgistInstance.pause();
     useEmulatorStore.getState().setStatus('paused');
   }
 
   resume(): void {
-    nostalgistInstance?.resume();
+    if (!nostalgistInstance) return;
+    nostalgistInstance.resume();
     useEmulatorStore.getState().setStatus('running');
   }
 
@@ -113,12 +128,7 @@ export class EmulatorEngine {
 
   async loadState(stateData: Blob): Promise<void> {
     if (!nostalgistInstance) return;
-    try {
-      await nostalgistInstance.loadState(stateData);
-    } catch (error) {
-      console.error('Failed to load state:', error);
-      throw error;
-    }
+    await nostalgistInstance.loadState(stateData);
   }
 
   getCanvas(): HTMLCanvasElement | null {
@@ -130,26 +140,12 @@ export class EmulatorEngine {
   }
 
   async captureScreenshot(): Promise<Blob | null> {
-    const canvas = this.getCanvas();
-    if (!canvas) return null;
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), 'image/png');
-    });
-  }
-
-  private handleContextLost = (e: Event): void => {
-    e.preventDefault();
-    console.warn('WebGL context lost');
-    useEmulatorStore.getState().setStatus('paused');
-  };
-
-  private handleContextRestored = (): void => {
-    console.log('WebGL context restored');
-    useEmulatorStore.getState().setStatus('running');
-  };
-
-  get audio(): AudioPipeline | null {
-    return audioPipeline;
+    if (!nostalgistInstance) return null;
+    try {
+      return await nostalgistInstance.screenshot();
+    } catch {
+      return null;
+    }
   }
 
   get isRunning(): boolean {
@@ -161,22 +157,12 @@ export class EmulatorEngine {
   }
 
   destroy(): void {
-    const canvas = this.getCanvas();
-    if (canvas) {
-      canvas.removeEventListener('webglcontextlost', this.handleContextLost);
-      canvas.removeEventListener('webglcontextrestored', this.handleContextRestored);
-    }
-
-    audioPipeline?.destroy();
-    audioPipeline = null;
-
     try {
-      nostalgistInstance?.exit();
+      nostalgistInstance?.exit({ removeCanvas: true });
     } catch {
       // Ignore cleanup errors
     }
     nostalgistInstance = null;
-
     useEmulatorStore.getState().reset();
     EmulatorEngine._instance = null;
   }
